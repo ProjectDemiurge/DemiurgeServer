@@ -1,0 +1,147 @@
+BNES // Echo send
+66 78 	// 2 bytes protocol type
+69 83 	// 2 bytes message type
+255 19	// 2 byte client port (not used)
+0 	// 1 byte unknown
+0 	// 1 byte comes back in BNER
+
+BNER // Echo reply
+66 78 	// 2 bytes protocol type
+69 82	// 2 bytes message type
+85 	// 1 byte unknown
+2 20	// 2 bytes server port (not used)
+0 	// 1 byte = last byte of BNER
+8 	// 1 byte string length
+Server12 // X bytes server name (X = previous byte)
+
+BNXI // Extra info request
+66 78 	// 2 bytes protocol type
+88 73 	// 2 bytes message type
+255 19 	// 2 bytes client port
+
+BNXR // Extra info reply
+66 78 	// 2 bytes protocol type
+88 82 	// 2 bytes message type
+2 20 	// 2 bytes server port
+253 0 	// 2 bytes unknown
+1 40 	// 2 bytes. Levels 1 to 40?
+0 6 	// 2 bytes. 0 players/6 max players
+1 	// allow local characters
+1 	// pvp mode (0 = None, 1 = Party, 2 = Full, 3 = default)
+0 	// player pause enabled
+1 	// only one party
+1 	// enforce legal characters
+0 	// item level restrictions
+0 	// server version (0 = no expansions, 1 = XP1, 2 = XP2, 3 = XP1 + XP2, 4 = XP3. Can go up to 8 (XP4). Beyond that and it breaks.
+8 	// 1 byte string length
+Chapter1 // X bytes module name
+
+Where is Difficulty, AutoSave Interval (minutes), Game Type, PvP Setting, Password required?
+
+BNLM // Link alive?
+66 78 	// 2 bytes protocol type
+76 77 	// 2 bytes message type
+255 19	// 2 bytes client port
+3 	// Starts at 3 and packets keep sending until it == 1
+0 0 0 	// 3 bytes buffer
+
+BNLR // Link reply
+66 78 	// 2 bytes protocol type
+76 82 	// 2 bytes message type
+2 20 	// 2 bytes server port
+3 	// Starts at 3 and packets keep sending until it == 1
+0 0 0 	// 3 bytes buffer
+
+BNDS // Details send
+66 78 // protocol type
+68 83 // message type
+12 20 // client port
+
+BNDR // Details reply
+2 bytes // protocol type
+2 bytes // message type
+2 bytes // server port
+4 byte  // int string length - server description
+X bytes // string server description string
+4 byte  // int string length - module description
+Y bytes // string module description
+4 byte  // int string length - server version (generally 4 as version numbers no longer change)
+Z bytes // server version string
+2 bytes // game type (00 = action)
+
+BNCS // Connect send
+66 78 	// 2 byte protocol type
+67 83 	// 2 byte message type
+255 19	// 2 byte client port
+
+
+16 173 31 0 0 3 0 0 34 208 200 5 // 12 bytes unknown
+22 d0 c8 5
+
+10:AD:1F:00:00:03:00:00:3E:64:C4:00:
+16 173 31 0 0 3 0 0 62 100 196 0
+
+1 byte 	// player name length
+X bytes // player name
+1 byte 	// CD key hash length
+Y bytes // CD key hash
+
+SendBNCSMessage(ulong, uchar, int, int, String, String, ulong &
+HandleBNCS(ulong, uchar *, ulong)
+
+BNCR // Connect reply
+66 78 	// 2 byte protocol type
+67 82 	// 2 byte message type
+2 20  	// 2 byte server port
+56 20   // 2 bytes version number? Doesn't seem to change
+X bytes // Rest of the packet seems to change quite a bit with no discernable pattern
+
+// Packet capture on tablet
+>> 0000:                   56 20 cc 32 23 39 d9 be b8 8d  BNCR..V..2#9....
+>> 0010: 32 c3 ab ac 99 8a 0b 8f b5 29 36 dd de b6 93 73  2........)6....s
+>> 0020: 45 96 aa 2e 41 0e 0a 25 20 f6 21 de 21 bf cb de  E...A..%..!.!...
+>> 0030: f8 83 05 c1 7a 53 c9 d3 56 d9 a5 f7 83 6d 67 bc  ....zS..V....mg.
+>> 0040: f4 1c 09 99 e3 01 a8 0c 64                       ........d
+
+// Second packet capture on tablet
+>> 0000:                   56 20 a4 82 d5 8b e5 1c 70 25  BNCR..V.......p%
+>> 0010: 7d bc 8a 50 53 28 1d 40 53 7d d6 92 f2 d6 c3 bc  }..PS(.@S}......
+>> 0020: 63 af 87 c4 50 76 02 f6 20 84 6e fc 5b 85 3a 6e  c...Pv....n.[.:n
+>> 0030: 66 e1 d1 16 6b fc 77 44 14 4b 0b 1f 10 7c 29 b2  f...k.wD.K...|).
+>> 0040: 31 12 77 df fa fc a1 29 d4                       1.w....).
+
+
+// Desktop to Localhost
+>> 0000: 42 4e 43 52 01 14 56 20 28 9f 3e ed fc d1 62 74  BNCR..V.(.>...bt
+>> 0010: ac ae ce a6 86 3d 12 04 5b d0 e3 0f 89 c9 1b 80  .....=..[.......
+>> 0020: 75 19 68 76 16 15 6a 8f 20 70 83 88 54 03 87 fe  u.hv..j..p..T...
+>> 0030: 4a 3c 39 85 0e a2 95 62 a5 3b 29 12 d6 84 54 90  J<9....b.;)...T.
+>> 0040: 63 04 28 59 15 5a 7d 09 c0                       c.(Y.Z}..
+
+// Function in dissasembly
+SendBNCR(ulong, uchar, ulong)
+HandleBNCR(ulong, uchar *, ulong)
+
+BNVS
+3 CD Key 8 hashes + 3 MD5 hashes
+
+2 bytes protocol
+2 bytes message type
+56 03  //2 bytes unknown (doesn't seem to be port like in all previous)
+1 byte ASCII ( Acts as delimiter (hex 28)
+8 bytes CD Key Hash 1
+32 bytes MD5 Hash
+1 byte ASCII ( delimiter (hex 28)
+8 bytes CD Key Hash 2
+32 bytes MD5 Hash
+1 byte ASCII ( delimiter (hex 28)
+8 bytes CD Key Hash 3
+32 bytes MD5 Hash
+1 byte ASCII . delimiter (hex 20)
+32 byte MD5 Hash
+
+BNVR
+2 bytes protocol type
+2 bytes message type
+41 57 1b 5c 0b  // 5 bytes unknown (from laptop)
+41 f2 7f f4 0e // Alternate capture from desktop

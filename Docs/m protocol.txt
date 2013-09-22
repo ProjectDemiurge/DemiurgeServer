@@ -1,0 +1,5 @@
+M Protocol
+
+4d // 1 byte "M"
+2 bytes // message type?
+2 byte packet sequence count (incremented when a packet exceeds 960bytes of data. Successive packets in that same message have incremental values here)
