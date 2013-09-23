@@ -1,5 +1,66 @@
 M Protocol
 
-4d // 1 byte "M"
-2 bytes // message type?
-2 byte packet sequence count (incremented when a packet exceeds 960bytes of data. Successive packets in that same message have incremental values here)
+---------------------------------
+Header
+---------------------------------
+4D // 1 byte 'M'
+XX-XX // 2 bytes - possibly CRC-16
+AA-AA // 2 byte int. Packet count within message id
+BB-BB // 2 byte int. Message id
+CC	  // 1 byte message type - 10 - ACK, 0F - Start of message set, 0A - Additional Message in set
+DD-DD // Unknown. Sometimes 00-01 othertimes 00-00
+EE-EE // 2 byte int message length
+
+Protocol breaks a message into multiple packets as message exceeds 960 bytes.
+
+
+First M packet after connection
+Client - 4D-E2-CD-00-00-FF-FF-0A-00-01-00-03-70-01-00
+Server - 4D-97-82-00-00-00-00-10-00-00-00-00
+
+
+
+Sent when client and server seemed to be idling. Keep alive packet?
+Server - 4D-E5-2C-00-00-00-03-10-00-00-00-00
+Client - 4D-25-57-00-00-00-0F-10-00-00-00-00
+
+1 Byte - Protocol ID
+2 Bytes - Message ID
+
+------------------------------------
+Sending Player List
+------------------------------------
+:4D:53:01:00:01:00:02:0F:00:01:01:30
+:23:02:00:00:78:DA:7C:50:4D:4B:03:31:10:CD:EE:BA:DA:56:3C:14:41:10:05:5B:54:BC:B6:45:E9:B9:82:0A:A2:E0:41:F0:18:67:BB:C9:26:74:37:5B:B2:59:C5:5F:5F:67:C2:46:10:3F:72:78:F3:32:E4:BD:BC:99:A7:61:3C:8A:19:EB:B1:2D:C6:D8:8B:36:80:85:BD:77:35:9C:E1:66:B3:AE:B9:6A:B9:E4:93:29:F7:AD:24:42:38:DC:46:48:CF:11:06:3B:5E:5E:96:1A:AA:3E:D2:EB:BA:B5:B9:58:69:D3:28:6D:01:84:75:4A:98:DC:79:2B:28:25:70:A7:B4:90:B6:35:0A:AD:48:30:26:AB:E8:04:21:A6:24:8B:2C:D3:F4:0D:60:9D:FE:9F:24:A2:24:11:89:9E:E1:CD:8B:5C:57:BF:8B:96:65:23:75:A1:9C:B0:A8:4B:E8:7D:FF:0C:E1:38:A5:69:08:1E:75:D3:00:91:5B:01:36:AF:E8:26:89:FD:66:C2:BF:76:D0:F3:E3:8F:11:0E:48:BB:58:E1:BC:3E:79:20:3F:93:CF:26:57:73:1E:7E:4D:70:FB:6C:F7:88:06:EF:21:DC:59:E1:96:B8:AB:01:F2:87:DA:14:59:ED:5C:5D:15:5D:B7:EC:3A:68:16:5A:C1:3F:26:B3:53:F2:49:69:B6:FB:D6:88:3D:CA:63:0A:51:CA:51:7E:71:03:4E:99:8F:75:A3:E1:8F:4C:97:33:1E:E2:EC:93:57:9C:10:7B:65:D1:27:00:00:00:FF:FF
+:00:00:00:00:00:00:00:0A:00:01:00:31
+:50:31:03:30:00:00:00:EB:F3:FF:7F:05:00:00:00:43:61:6C:69:61:05:00:00:00:45:27:6C:69:6E:FF:FF
+:70:6F:5F:76:61:6D:70:69:72:65:5F:66:5F:00:00:00:00:D0
+:00:00:00:00:00:00:00:0A:00:01:00:35
+:50:31:03:34:00:00:00:CA:F4:FF:7F:05:00:00:00:43:68:65:6C:61:09:00:00:00:44:72:61:63:73:77:65:6C:6C:FF:FF
+:6C:63:2D:63:68:65:6C:61:5F:00:00:00:00:00:00:00:00:D0
+:00:00:00:00:00:00:00:0A:00:01:00:2A
+:50:31:03:29:00:00:00:2E:F9:FF:7F:03:00:00:00:48:65:78:00:00:00:00:FF:FF
+:66:69:6C:65:00:00:00:00:00:00:00:00:00:00:00:00:00:D0
+:00:00:00:00:00:00:00:0A:00:01:00:33
+:50:31:03:32:00:00:00:C1:FF:FF:7F:06:00:00:00:56:69:61:6C:65:65:06:00:00:00:58:61:6E:71:75:61:FF:FF
+:70:6F:5F:68:75:5F:66:5F:30:35:5F:00:00:00:00:00:00:D0
+
+Header = 4D:53:01:00:01:00:02:0F:00:01:01:30
+One packet can contain many messages. The last two bytes are message length
+Messages are also ended with terminator characters FF:FF and 00:D0
+First packet header contains lots of info. 
+Subsequent packet headers = 00:00:00:00:00:00:00:0A:00:01:00:31
+8th byte in header has values: 10, 0A, 0F
+0F appears to start a sequence of messages. Can cross multiple packets
+0A appears to be subsequent messages
+7th byte appears to connect message sets. eg. All the player list packets would have the same number (Often 00, 01, 02, 03 etc)
+
+
+
+Player Info = 50:31:03:30:00:00:00:EB:F3:FF:7F:05:00:00:00:43:61:6C:69:61:05:00:00:00:45:27:6C:69:6E:FF:FF
+We have 11 bytes of info (character levels and classes)
+4 byte int for First Name
+4 byte int for Last Name
+
+Portrait = :70:6F:5F:76:61:6D:70:69:72:65:5F:66:5F:00:00:00:00:D0
+16 bytes portrait resref. This is a fixed length string. Append 00's to pad string out to 16 bytes.

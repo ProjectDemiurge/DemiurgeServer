@@ -93,7 +93,7 @@ BNCR // Connect reply
 66 78 	// 2 byte protocol type
 67 82 	// 2 byte message type
 2 20  	// 2 byte server port
-56 20   // 2 bytes version number? Doesn't seem to change
+56 20   // 2 bytes Connect reply (52-05 = Server full, 52-01 = Connected)
 X bytes // Rest of the packet seems to change quite a bit with no discernable pattern
 
 // Packet capture on tablet
